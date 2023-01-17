@@ -1,5 +1,99 @@
-import React from "react";
+import axios from "axios";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
+import { apis } from "../apis/api";
+
+function Form({ getComments, selectedComment }) {
+  // const testData = useSelector((state) => state.state);
+  // const dispatch = useDispatch();
+  // dispatch({ type: "update" });
+  // console.log(testData);
+
+  const [commentData, setCommentData] = useState({
+    profile_url: "",
+    author: "",
+    content: "",
+    createdAt: "",
+  });
+
+  useEffect(() => {
+    if (Object.keys(selectedComment).length !== 0) {
+      console.log(selectedComment);
+      setCommentData({
+        ...commentData,
+        profile_url: selectedComment.profile_url,
+        author: selectedComment.author,
+        content: selectedComment.content,
+        createdAt: selectedComment.createdAt,
+      });
+    }
+  }, []);
+
+  const submitBtn = async (e) => {
+    e.preventDefault();
+    try {
+      await apis.postComments(commentData);
+      getComments();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  return (
+    <FormStyle>
+      <form>
+        <input
+          type="text"
+          name="profile_url"
+          placeholder="https://picsum.photos/id/1/50/50"
+          required
+          value={commentData.profile_url}
+          onChange={(e) => {
+            setCommentData({ ...commentData, profile_url: e.target.value });
+          }}
+        />
+        <br />
+        <input
+          type="text"
+          name="author"
+          placeholder="작성자"
+          value={commentData.author}
+          onChange={(e) => {
+            setCommentData({ ...commentData, author: e.target.value });
+          }}
+        />
+        <br />
+        <textarea
+          name="content"
+          placeholder="내용"
+          required
+          value={commentData.content}
+          onChange={(e) => {
+            setCommentData({ ...commentData, content: e.target.value });
+          }}
+        ></textarea>
+        <br />
+        <input
+          type="text"
+          name="createdAt"
+          placeholder="2020-05-30"
+          required
+          value={commentData.createdAt}
+          onChange={(e) => {
+            setCommentData({ ...commentData, createdAt: e.target.value });
+          }}
+        />
+        <br />
+        <button type="submit" onClick={submitBtn}>
+          등록
+        </button>
+      </form>
+    </FormStyle>
+  );
+}
+
+export default Form;
 
 const FormStyle = styled.div`
   & > form {
@@ -23,28 +117,3 @@ const FormStyle = styled.div`
     cursor: pointer;
   }
 `;
-
-function Form() {
-  return (
-    <FormStyle>
-      <form>
-        <input
-          type="text"
-          name="profile_url"
-          placeholder="https://picsum.photos/id/1/50/50"
-          required
-        />
-        <br />
-        <input type="text" name="author" placeholder="작성자" />
-        <br />
-        <textarea name="content" placeholder="내용" required></textarea>
-        <br />
-        <input type="text" name="createdAt" placeholder="2020-05-30" required />
-        <br />
-        <button type="submit">등록</button>
-      </form>
-    </FormStyle>
-  );
-}
-
-export default Form;
