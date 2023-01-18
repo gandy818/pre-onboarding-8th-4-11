@@ -3,13 +3,10 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import App from "./App";
 import { Provider } from "react-redux";
-import { createStore } from "redux";
-import reducers from "./store/reducer";
+import store from "./store";
 
 const container = document.getElementById("root");
 const root = createRoot(container);
-
-const store = createStore(reducers);
 
 root.render(
   <BrowserRouter>

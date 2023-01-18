@@ -1,41 +1,46 @@
-import React, { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { apis } from "../apis/api";
 import Form from "../components/Form";
+import { useDispatch, useSelector } from "react-redux";
+import { loadComment, deleteComment, updateMode } from "../store/comment";
 
 function CommentList({ commentList, getComments }) {
-  const [commentData, setCommentData] = useState({});
   const [selectedComment, setSelectedComment] = useState({});
-  const storeData = useSelector((state) => state.state);
-
   const dispatch = useDispatch();
+  const comments = useSelector((store) => store.comment.comments);
 
-  const updateMode = (comment) => {
-    const selected = commentList.filter((item) => item.id === comment.id);
-    setSelectedComment(selected[0]);
-    // try {
-    //   dispatch({ type: "update" });
-    //   const selected = storeData.filter((item) => item.id === comment.id);
-    // } catch (err) {
-    //   console.error(err);
-    // }
+  useEffect(() => {
+    //댓글 목록 불러오기
+    const getCommentFunction = (dispatch) => {
+      apis.getComments().then((res) => dispatch(loadComment(res.data)));
+    };
+    dispatch(getCommentFunction);
+  }, []);
+
+  const deleteCommentBtn = async (comment) => {
+    // 댓글 삭제
+    const deleteCommentFunction = (dispatch) => {
+      apis
+        .deleteComments(comment.id)
+        .then(() => dispatch(deleteComment(comment.id)));
+    };
+    await dispatch(deleteCommentFunction);
   };
 
-  const deleteComment = async (comment) => {
-    // const selected = commentList.filter((item) => item.id === comment.id);
-    try {
-      const { data } = await apis.deleteComments(comment.id);
-      console.log(data);
-      getComments();
-    } catch (err) {
-      console.error(err);
-    }
+  //댓글 수정
+
+  //댓글 수정모드
+  const updateModeBtn = (comment) => {
+    const selected = commentList.filter((item) => item.id === comment.id);
+    setSelectedComment(selected[0]);
+
+    dispatch(updateMode(selected[0]));
   };
 
   return (
     <div>
-      {commentList.map((comment, key) => (
+      {comments.map((comment, key) => (
         <Comment key={key}>
           <img src={comment.profile_url} alt="" />
           {comment.author}
@@ -45,12 +50,12 @@ function CommentList({ commentList, getComments }) {
             <button
               type="button"
               onClick={() => {
-                updateMode(comment);
+                updateModeBtn(comment);
               }}
             >
               수정
             </button>
-            <button type="button" onClick={() => deleteComment(comment)}>
+            <button type="button" onClick={() => deleteCommentBtn(comment)}>
               삭제
             </button>
           </Button>

@@ -3,19 +3,16 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { apis } from "../apis/api";
+import { addComment } from "../store/comment";
 
 function Form({ getComments, selectedComment }) {
-  // const testData = useSelector((state) => state.state);
-  // const dispatch = useDispatch();
-  // dispatch({ type: "update" });
-  // console.log(testData);
-
   const [commentData, setCommentData] = useState({
     profile_url: "",
     author: "",
     content: "",
     createdAt: "",
   });
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (Object.keys(selectedComment).length !== 0) {
@@ -30,14 +27,17 @@ function Form({ getComments, selectedComment }) {
     }
   }, []);
 
-  const submitBtn = async (e) => {
+  //댓글 추가
+  const createComment = async (dispatch) => {
+    await apis
+      .postComments(commentData)
+      .then((res) => dispatch(addComment(res.data)));
+  };
+
+  //댓글 추가 버튼
+  const submitBtn = (e) => {
     e.preventDefault();
-    try {
-      await apis.postComments(commentData);
-      getComments();
-    } catch (err) {
-      console.error(err);
-    }
+    dispatch(createComment);
   };
 
   return (
